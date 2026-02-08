@@ -1,0 +1,105 @@
+import os
+import sys
+import warnings
+
+warnings.simplefilter(action="ignore")
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+import spacy
+from nlp_module import (
+    read_from_file,
+    read_from_sentence,
+    preprocess_using_spaCy,
+    convert_bow_counter,
+    prepare_output_text
+)
+
+
+def main():
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        print("Install spaCy model using:")
+        print("python -m spacy download en_core_web_sm")
+        sys.exit(1)
+
+    sentence = "LOL LOL slay slay slay queen."
+    cleaned_sentence = read_from_sentence(sentence, nlp)
+
+    print("Cleaned Sentence:")
+    print(cleaned_sentence)
+    print()
+
+    vectorizer, bow_matrix = convert_bow_counter([cleaned_sentence])
+
+    print("BoW Word Frequencies (Sentence):")
+    for word, index in vectorizer.vocabulary_.items():
+        print(f"{word} : {bow_matrix[0, index]}")
+    print()
+
+    filename = input()
+
+    documents = read_from_file(filename)
+    clean_docs = preprocess_using_spaCy(documents, nlp)
+
+    vectorizer, bow_matrix = convert_bow_counter(clean_docs)
+
+    print("BoW Word Frequencies (Business Data):")
+    prepare_output_text(vectorizer, bow_matrix)
+
+
+if __name__ == "__main__":
+    main()
+
+--------------------------------------------
+import sys
+import os
+from sklearn.feature_extraction.text import CountVectorizer
+
+
+def read_from_file(filename):
+    file_path = os.path.join(sys.path[0], "Hard.txt")
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            documents = [line.strip() for line in file if line.strip()]
+        return documents
+    except FileNotFoundError:
+        print("File not found")
+        sys.exit(1)
+
+
+def read_from_sentence(sentence, nlp):
+    doc = nlp(sentence.lower())
+    tokens = [
+        token.text
+        for token in doc
+        if token.is_alpha and not token.is_stop
+    ]
+    return " ".join(tokens)
+
+
+def preprocess_using_spaCy(documents, nlp):
+    clean_docs = []
+    for doc in documents:
+        spacy_doc = nlp(doc.lower())
+        tokens = [
+            token.text
+            for token in spacy_doc
+            if token.is_alpha and not token.is_stop
+        ]
+        clean_docs.append(" ".join(tokens))
+    return clean_docs
+
+
+def convert_bow_counter(clean_docs):
+    vectorizer = CountVectorizer()
+    bow_matrix = vectorizer.fit_transform(clean_docs)
+    return vectorizer, bow_matrix
+
+
+def prepare_output_text(vectorizer, bow_matrix):
+    word_counts = bow_matrix.sum(axis=0)
+    vocab = vectorizer.vocabulary_
+
+    for word, index in vocab.items():
+        print(f"{word} : {int(word_counts[0, index])}")

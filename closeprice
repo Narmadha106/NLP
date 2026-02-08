@@ -1,0 +1,23 @@
+import pandas as pd
+import os,sys
+
+file_name = input()
+
+df = pd.read_csv(os.path.join(sys.path[0],file_name))
+
+print("First 5 rows of the dataset:")
+print(df.head())
+
+df["Date"] = pd.to_datetime(df["Date"])
+df.set_index("Date", inplace=True)
+
+df = df.ffill()
+print("\nMissing values in dataset:")
+print(df.isnull().sum())
+
+duplicate_count = df.duplicated().sum()
+df = df.drop_duplicates()
+print("\nNumber of duplicate rows:", duplicate_count)
+
+print("\nClose price summary statistics:")
+print(df["Close"].describe())

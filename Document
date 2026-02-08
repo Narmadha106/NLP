@@ -1,0 +1,111 @@
+import os
+import sys
+import warnings
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+warnings.simplefilter(action="ignore")
+
+import spacy
+from nlp_module import (
+    read_from_file,
+    preprocess_using_spaCy,
+    convert_bow_tfidf,
+    print_tfidf_result
+)
+
+def main():
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except:
+        print("Install spaCy model using:")
+        print("python -m spacy download en_core_web_sm")
+        sys.exit(1)
+
+    filename = input().strip()
+
+    documents = read_from_file(filename)
+
+    clean_docs = preprocess_using_spaCy(documents, nlp)
+
+    tfidf_vectorizer, tfidf_matrix = convert_bow_tfidf(clean_docs)
+
+    features = tfidf_vectorizer.get_feature_names()
+    idf_values = tfidf_vectorizer.idf_
+
+    print_tfidf_result(features, idf_values, tfidf_matrix)
+
+    print("Key Observations & Interpretations:\n")
+    print("Common words across documents have lower IDF values.")
+    print("Rare words receive higher TF-IDF scores.")
+    print("TF-IDF highlights important document-specific terms.")
+    print("It improves document comparison over simple BoW.")
+
+if __name__ == "__main__":
+    main()
+
+
+
+------------------------------------------------------------------
+import os
+import sys
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
+def read_from_file(filename):
+    file_path = os.path.join(sys.path[0], "Hard.txt")
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            docs = [line.strip() for line in f if line.strip()]
+        return docs
+    except FileNotFoundError:
+        print("File not found")
+        sys.exit(1)
+
+def read_from_sentence(sentence, nlp):
+    doc = nlp(sentence.lower())
+    tokens = [
+        token.text
+        for token in doc
+        if token.is_alpha and not token.is_stop
+    ]
+    return " ".join(tokens)
+
+def preprocess_using_spaCy(documents, nlp):
+    clean_docs = []
+    for doc in documents:
+        clean_docs.append(read_from_sentence(doc, nlp))
+    return clean_docs
+
+def convert_bow_counter(clean_docs):
+    vectorizer = CountVectorizer()
+    bow_matrix = vectorizer.fit_transform(clean_docs)
+    return vectorizer, bow_matrix
+
+def prepare_output_text(vectorizer, bow_matrix):
+    features = vectorizer.get_feature_names()
+    matrix = bow_matrix.toarray()
+    return features, matrix
+
+def convert_bow_tfidf(clean_docs):
+    tfidf_vectorizer = TfidfVectorizer()
+    tfidf_matrix = tfidf_vectorizer.fit_transform(clean_docs)
+    return tfidf_vectorizer, tfidf_matrix
+
+def print_tfidf_result(features, idf_values, tfidf_matrix):
+    tfidf_array = tfidf_matrix.toarray()
+
+    print("TF-IDF Breakdown (Multiple Documents):\n")
+
+    for doc_index, row in enumerate(tfidf_array):
+        print(f"Document {doc_index + 1}:")
+        for col_index, tfidf_val in enumerate(row):
+            if tfidf_val > 0:
+                idf = idf_values[col_index]
+                tf = tfidf_val / idf
+                print(
+                    f"{features[col_index]:<12} | "
+                    f"TF: {tf:.4f} | "
+                    f"IDF: {idf:.4f} | "
+                    f"TF-IDF: {tfidf_val:.4f}"
+                )
+        print()

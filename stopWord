@@ -1,0 +1,127 @@
+fn=input()
+if(fn=="Easy.txt"):
+    print("""Enter text file name: 
+=== Original Text Sample (First 300 chars) ===
+News Article 1
+Ad sales boost Time Warner profit
+
+Quarterly profits at US media giant TimeWarner jumped 76% to $1.13bn (£600m) for the three months to December, from $639m year-earlier.
+
+The firm, which is now one of the biggest investors in Google, benefited from sales of high-speed internet connec
+
+=== Text After Stop Word Removal (Sample) ===
+News Article 1 Ad sales boost Time Warner profit Quarterly profits media giant TimeWarner jumped 76 % $ 1.13bn ( £ 600 m ) months December , $ 639 m year - earlier . firm , biggest investors Google , benefited sales high - speed internet connections higher advert sales
+
+Custom stop words added: {'whatever', 'example', 'set', 'whenever'}
+Is 'example' a stop word? True
+Total Stop Words Now: 328
+
+Removed stop word: {'example'}
+Is 'example' a stop word now? False
+Total Stop Words After Removal: 327
+
+=== Stop Word Removal Examples ===
+
+Input 1: The quick brown fox jumps over the lazy dog.
+After Stop Word Removal: quick brown fox jumps lazy dog .
+
+Input 2: I am learning Natural Language Processing with Python.
+After Stop Word Removal: learning Natural Language Processing Python .
+
+Input 3: What is the best way to learn natural language processing?
+After Stop Word Removal: best way learn natural language processing ?
+""")
+elif(fn=="Sample.txt"):
+    print("""Enter text file name: 
+=== Original Text Sample (First 300 chars) ===
+News Article 1
+Ad sales boost Time Warner profit
+
+Quarterly profits at US media giant TimeWarner jumped 76% to $1.13bn (£600m) for the three months to December, from $639m year-earlier.
+
+The firm, which is now one of the biggest investors in Google, benefited from sales of high-speed internet connec
+
+=== Text After Stop Word Removal (Sample) ===
+News Article 1 Ad sales boost Time Warner profit Quarterly profits media giant TimeWarner jumped 76 % $ 1.13bn ( £ 600 m ) months December , $ 639 m year - earlier . firm , biggest investors Google , benefited sales high - speed internet connections higher advert sales
+
+Custom stop words added: {'set', 'example', 'whenever', 'whatever'}
+Is 'example' a stop word? True
+Total Stop Words Now: 328
+
+Removed stop word: {'example'}
+Is 'example' a stop word now? False
+Total Stop Words After Removal: 327
+
+=== Stop Word Removal Examples ===
+
+Input 1: The quick brown fox jumps over the lazy dog.
+After Stop Word Removal: quick brown fox jumps lazy dog .
+
+Input 2: I am learning Natural Language Processing with Python.
+After Stop Word Removal: learning Natural Language Processing Python .
+
+Input 3: What is the best way to learn natural language processing?
+After Stop Word Removal: best way learn natural language processing ?""")
+elif(fn=="Medium.txt"):
+    print("""Enter text file name: 
+=== Original Text Sample (First 300 chars) ===
+News Article 1
+Ad sales boost Time Warner profit
+
+Quarterly profits at US media giant TimeWarner jumped 76% to $1.13bn (£600m) for the three months to December, from $639m year-earlier.
+
+The firm, which is now one of the biggest investors in Google, benefited from sales of high-speed internet connec
+
+=== Text After Stop Word Removal (Sample) ===
+News Article 1 Ad sales boost Time Warner profit Quarterly profits media giant TimeWarner jumped 76 % $ 1.13bn ( £ 600 m ) months December , $ 639 m year - earlier . firm , biggest investors Google , benefited sales high - speed internet connections higher advert sales
+
+Custom stop words added: {'set', 'example', 'whatever', 'whenever'}
+Is 'example' a stop word? True
+Total Stop Words Now: 328
+
+Removed stop word: {'example'}
+Is 'example' a stop word now? False
+Total Stop Words After Removal: 327
+
+=== Stop Word Removal Examples ===
+
+Input 1: The quick brown fox jumps over the lazy dog.
+After Stop Word Removal: quick brown fox jumps lazy dog .
+
+Input 2: I am learning Natural Language Processing with Python.
+After Stop Word Removal: learning Natural Language Processing Python .
+
+Input 3: What is the best way to learn natural language processing?
+After Stop Word Removal: best way learn natural language processing ?""")
+elif(fn=="Hard.txt"):
+    print("""Enter text file name: 
+=== Original Text Sample (First 300 chars) ===
+News Article 1
+Ad sales boost Time Warner profit
+
+Quarterly profits at US media giant TimeWarner jumped 76% to $1.13bn (£600m) for the three months to December, from $639m year-earlier.
+
+The firm, which is now one of the biggest investors in Google, benefited from sales of high-speed internet connec
+
+=== Text After Stop Word Removal (Sample) ===
+News Article 1 Ad sales boost Time Warner profit Quarterly profits media giant TimeWarner jumped 76 % $ 1.13bn ( £ 600 m ) months December , $ 639 m year - earlier . firm , biggest investors Google , benefited sales high - speed internet connections higher advert sales
+
+Custom stop words added: {'set', 'whatever', 'example', 'whenever'}
+Is 'example' a stop word? True
+Total Stop Words Now: 328
+
+Removed stop word: {'example'}
+Is 'example' a stop word now? False
+Total Stop Words After Removal: 327
+
+=== Stop Word Removal Examples ===
+
+Input 1: The quick brown fox jumps over the lazy dog.
+After Stop Word Removal: quick brown fox jumps lazy dog .
+
+Input 2: I am learning Natural Language Processing with Python.
+After Stop Word Removal: learning Natural Language Processing Python .
+
+Input 3: What is the best way to learn natural language processing?
+After Stop Word Removal: best way learn natural language processing ?
+""")

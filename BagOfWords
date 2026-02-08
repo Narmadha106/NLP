@@ -1,0 +1,70 @@
+import os
+import sys
+import warnings
+
+warnings.simplefilter(action='ignore')
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+try:
+    import spacy
+    from sklearn.feature_extraction.text import CountVectorizer
+except ImportError as e:
+    print(f"Required library not found: {e}")
+    sys.exit(1)
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    print("SpaCy model 'en_core_web_sm' not found.")
+    sys.exit(1)
+
+
+def preprocess_text(text):
+    doc = nlp(text)
+    tokens = []
+    for token in doc:
+        if not token.is_stop and not token.is_punct and not token.is_space:
+            tokens.append(token.text.lower())
+    return " ".join(tokens)
+
+print("Enter sports news text file name: ")
+f123 = input()
+filepath = os.path.join(sys.path[0], f123)
+
+try:
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    raw_docs = content.splitlines()
+
+    print("=== Original Text Sample ===")
+    print(raw_docs[0])
+    print()
+
+    first_cleaned = preprocess_text(raw_docs[0])
+    print("=== Preprocessed Text Sample ===")
+    print(first_cleaned)
+    print()
+
+    cleaned_docs = [preprocess_text(doc) for doc in raw_docs]
+
+    vectorizer = CountVectorizer()
+    bow = vectorizer.fit_transform(cleaned_docs)
+
+    print("=== Bag-of-Words Matrix ===")
+    print(bow.toarray())
+    print()
+
+    print("=== Word Frequencies ===")
+
+    vocab = vectorizer.vocabulary_
+    freqs = bow.toarray().sum(axis=0)
+
+    word_freq = [(w, freqs[i]) for w, i in vocab.items()]
+    word_freq.sort(key=lambda x: (-x[1], x[0]))
+
+    for w, f in word_freq:
+        print(f"{w:<20} : {int(f)}")
+
+except FileNotFoundError:
+    print(f"Error: File '{filename}' not found.")
+except Exception as e:
+    print(f"Error: {e}")

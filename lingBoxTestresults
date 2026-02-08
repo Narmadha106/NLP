@@ -1,0 +1,79 @@
+import pandas as pd
+import numpy as np
+import os
+import sys
+import warnings
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+
+file_name = input().strip().replace('"', '').replace("'", "")
+df = pd.read_csv(os.path.join(sys.path[0],file_name))
+
+
+date_col = "Date" if "Date" in df.columns else "Datetime"
+df[date_col] = pd.to_datetime(df[date_col])
+df = df.sort_values(by=date_col)
+df.set_index(date_col, inplace=True)
+
+
+df = df.asfreq(pd.infer_freq(df.index))
+
+
+df = df.dropna(subset=["Close_diff"])
+
+
+n = len(df)
+train_size = int(0.8 * n)
+
+train = df.iloc[:train_size]
+test = df.iloc[train_size:]
+
+print(f"Training data size: {len(train)}")
+print(f"Testing data size: {len(test)}\n")
+
+y_train = train["Close_diff"]
+
+
+aic_scores = {}
+
+for p in range(1, 6):
+    model = ARIMA(y_train, order=(p, 0, 0))
+    result = model.fit()
+    aic_scores[f"AR({p})"] = result.aic
+    print(f"AR({p}) AIC: {result.aic}")
+
+for q in range(1, 6):
+    model = ARIMA(y_train, order=(0, 0, q))
+    result = model.fit()
+    aic_scores[f"MA({q})"] = result.aic
+    print(f"MA({q}) AIC: {result.aic}")
+
+# -------------------------------
+# Best model selection
+# -------------------------------
+best_model = min(aic_scores, key=aic_scores.get)
+print(f"\nBest Model: {best_model}")
+
+if "AR" in best_model:
+    p = int(best_model[3])
+    order = (p, 0, 0)
+else:
+    q = int(best_model[3])
+    order = (0, 0, q)
+
+# -------------------------------
+# Final model fitting
+# -------------------------------
+final_model = ARIMA(y_train, order=order)
+final_result = final_model.fit()
+
+print(final_result.summary())
+
+# -------------------------------
+# Ljung-Box Test
+# -------------------------------
+lb_test = acorr_ljungbox(final_result.resid, lags=[1], return_df=True)
+
+print("\nLjung-Box Test Results:")
+print(lb_test)

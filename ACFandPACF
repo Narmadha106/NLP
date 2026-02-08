@@ -1,0 +1,103 @@
+import sys
+import os
+
+def main():
+    try:
+        import pandas as pd
+    except ImportError:
+        print("pandas not available. Program cannot run.")
+        return
+
+
+    filename = input().strip()
+    df = pd.read_csv(os.path.join(sys.path[0],filename))
+
+
+    print("Dataset Preview:")
+    print(df.head())
+    print()
+
+
+    print("Dataset Information:")
+    print(df.info())
+    print()
+
+
+    print("Missing Value Check:")
+
+    missing_before = df.isnull().sum()
+
+    required_cols = ["Consumption", "Festivals/Special_events", "Power_Consumption_diff"]
+
+    for col in required_cols:
+        if col in missing_before.index:
+            print(col.ljust(27), missing_before[col])
+
+    print("dtype: int64")
+
+
+    df = df.dropna()
+
+
+    print("After missing value handling:")
+
+    missing_after = df.isnull().sum()
+
+    for col in required_cols:
+        if col in missing_after.index:
+            print(col.ljust(27), missing_after[col])
+
+    print("dtype: int64")
+    print()
+
+
+    print("ACF and PACF Analysis:")
+
+    try:
+        from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+        import matplotlib.pyplot as plt
+
+
+        if "Datetime" in df.columns:
+            df["Datetime"] = pd.to_datetime(df["Datetime"])
+            df = df.sort_values("Datetime")
+            df.set_index("Datetime", inplace=True)
+
+
+        series = df["Consumption"]
+
+        plot_acf(series, lags=20)
+        plot_pacf(series, lags=20)
+
+        plt.show()
+
+        print("ACF and PACF plots generated.")
+
+    except:
+        print("Time series module not available. Skipping ACF/PACF plots.")
+
+    print()
+
+
+    if "Datetime" in df.columns:
+        df["Datetime"] = pd.to_datetime(df["Datetime"])
+        df = df.sort_values("Datetime")
+        df.set_index("Datetime", inplace=True)
+
+
+    data = df["Consumption"]
+
+
+    split_index = int(len(data) * 0.8)
+
+    train = data[:split_index]
+    test = data[split_index:]
+
+
+    print("Train-Test Split:")
+    print("Training records:", len(train))
+    print("Testing records:", len(test))
+
+
+if __name__ == "__main__":
+    main()

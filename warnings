@@ -1,0 +1,25 @@
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+import os
+import sys
+file_name = input().strip()
+df = pd.read_csv(os.path.join(sys.path[0], file_name))
+df['Datetime'] = pd.to_datetime(df['Datetime'])
+df.set_index('Datetime', inplace=True)
+df = df.asfreq('MS')
+df = df.dropna(subset=['Power_Consumption_diff'])
+series = df['Power_Consumption_diff']
+train_size = int(len(series) * 0.8)
+train_data = series.iloc[:train_size]
+test_data = series.iloc[train_size:]
+print(f"Training data size: {len(train_data)}")
+print(f"Testing data size: {len(test_data)}\n")
+ar_model = ARIMA(train_data, order=(2, 0, 0))
+ar_result = ar_model.fit()
+print("AR(2) Model Summary:")
+print(ar_result.summary())
+print()
+ma_model = ARIMA(train_data, order=(0, 0, 1))
+ma_result = ma_model.fit()
+print("MA(1) Model Summary:")
+print(ma_result.summary())

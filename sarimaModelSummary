@@ -1,0 +1,113 @@
+import sys
+import os
+
+def main():
+    try:
+        import pandas as pd
+    except ImportError:
+        print("pandas not available. Program cannot run.")
+        return
+
+
+    filename = input().strip()
+
+    df = pd.read_csv(os.path.join(sys.path[0],filename))
+
+
+    print("Dataset Preview:")
+    print(df.head())
+    print()
+
+
+    print("Dataset Information:")
+    print(df.info())
+    print()
+
+    print("Missing Value Check:")
+
+    missing_before = df.isnull().sum()
+
+    required_cols = ["Open", "High", "Low", "Close", "Volume", "Close_diff"]
+
+    for col in required_cols:
+        if col in missing_before.index:
+            print(col.ljust(12), missing_before[col])
+            
+    print('dtype: int64')
+
+    df = df[["Date"] + required_cols]
+    df = df.dropna()
+
+
+    print("After missing value handling:")
+
+    missing_after = df.isnull().sum()
+
+    for col in required_cols:
+        print(col.ljust(12), missing_after[col])
+
+    print('dtype: int64')
+    print()
+
+
+    if "Date" in df.columns:
+        df["Date"] = pd.to_datetime(df["Date"])
+        df = df.sort_values("Date")
+        df.set_index("Date", inplace=True)
+
+
+    data = df["Close"]
+
+
+    split_index = int(len(data) * 0.8)
+
+    train = data[:split_index]
+    test = data[split_index:]
+
+
+    print("Train-Test Split:")
+    print("Training records:", len(train))
+    print("Testing records:", len(test))
+    print()
+
+
+    print("SARIMA Model Summary:")
+
+    try:
+        from pmdarima import auto_arima
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+
+        model_auto = auto_arima(
+            train,
+            seasonal=True,
+            m=12,
+            suppress_warnings=True,
+            error_action="ignore"
+        )
+
+
+        order = model_auto.order
+        seasonal_order = model_auto.seasonal_order
+
+
+        model = SARIMAX(
+            train,
+            order=order,
+            seasonal_order=seasonal_order,
+            enforce_stationarity=False,
+            enforce_invertibility=False
+        )
+
+
+        model_fit = model.fit()
+
+        print(model_fit.summary())
+
+
+    except:
+        print("pmdarima not available. SARIMA modeling skipped.")
+
+
+if __name__ == "__main__":
+    main()
